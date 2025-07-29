@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            max-width: 700px;
+            margin: auto;
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .options li {
+            margin: 10px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+        
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Interactive Quiz Game</h1>
+    <div id="quiz"></div>
+    <button id="submitBtn">Submit Answer</button>
+    <div id="result"></div>
+    <script>
+        const quizData = [{
+            type: "single",
+            question: "Which planet is known as the Red Planet?",
+            options: ["Earth", "Mars", "Jupiter", "Venus"],
+            answer: "Mars"
+        }, {
+            type: "multi",
+            question: "Select all prime numbers:",
+            options: ["2", "3", "4", "5"],
+            answer: ["2", "3", "5"]
+        }, {
+            type: "fill",
+            question: "____ is the process of plants making food using sunlight.",
+            answer: "Photosynthesis"
+        }];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const quizContainer = document.getElementById("quiz");
+        const resultContainer = document.getElementById("result");
+        const submitBtn = document.getElementById("submitBtn");
+
+        function renderQuestion() {
+            const q = quizData[currentQuestion];
+            quizContainer.innerHTML = `<div class="question-container"><p><strong>Q${currentQuestion + 1}:</strong> ${q.question}</p></div>`;
+
+            if (q.type === "single") {
+                quizContainer.innerHTML += `<ul class="options">${q.options
+          .map(
+            (opt, i) => `
+              <li><input type="radio" name="option" value="${opt}" id="opt${i}"> <label for="opt${i}">${opt}</label></li>
+            `
+          )
+          .join("")}</ul>`;
+      } else if (q.type === "multi") {
+        quizContainer.innerHTML += `<ul class="options">${q.options
+          .map(
+            (opt, i) => `
+              <li><input type="checkbox" name="option" value="${opt}" id="opt${i}"> <label for="opt${i}">${opt}</label></li>
+            `
+          )
+          .join("")}</ul>`;
+      } else if (q.type === "fill") {
+        quizContainer.innerHTML += `<input type="text" id="fillInput" placeholder="Type your answer here...">`;
+      }
+    }
+
+    function checkAnswer() {
+      const q = quizData[currentQuestion];
+      let userAnswer;
+
+      if (q.type === "single") {
+        const selected = document.querySelector("input[name='option']:checked");
+        if (!selected) return alert("Please select an answer.");
+        userAnswer = selected.value;
+        if (userAnswer === q.answer) score++;
+      } else if (q.type === "multi") {
+        const selected = [...document.querySelectorAll("input[name='option']:checked")].map(el => el.value);
+        if (selected.length === 0) return alert("Please select at least one answer.");
+        const correct = q.answer.sort().join("") === selected.sort().join("");
+        if (correct) score++;
+      } else if (q.type === "fill") {
+        userAnswer = document.getElementById("fillInput").value.trim();
+        if (!userAnswer) return alert("Please enter your answer.");
+        if (userAnswer.toLowerCase() === q.answer.toLowerCase()) score++;
+      }
+
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizContainer.innerHTML = "<h2>Quiz Completed!</h2>";
+      resultContainer.innerHTML = `You scored ${score} out of ${quizData.length}.`;
+      submitBtn.style.display = "none";
+    }
+
+    submitBtn.addEventListener("click", checkAnswer);
+    renderQuestion();
+    </script>
+</body>
+
+</html>

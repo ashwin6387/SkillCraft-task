@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stopwatch App</title>
+    <link rel="stylesheet" href="stopwatchstyle.css">
+</head>
+
+<body>
+
+    <h1>Stopwatch</h1>
+    <div class="stopwatch" id="display">00:00:00.00</div>
+
+    <div class="buttons">
+        <button class="start" onclick="startTimer()">Start</button>
+        <button class="pause" onclick="pauseTimer()">Pause</button>
+        <button class="reset" onclick="resetTimer()">Reset</button>
+        <button class="lap" onclick="recordLap()">Lap</button>
+    </div>
+
+    <div class="laps" id="laps">
+        <!-- Lap times will appear here -->
+    </div>
+
+    <script>
+        let [ms, sec, min, hr] = [0, 0, 0, 0];
+        let timer = null;
+
+        function updateDisplay() {
+            let formattedTime =
+                (hr < 10 ? "0" + hr : hr) + ":" +
+                (min < 10 ? "0" + min : min) + ":" +
+                (sec < 10 ? "0" + sec : sec) + "." +
+                (ms < 10 ? "0" + ms : ms);
+            document.getElementById("display").innerText = formattedTime;
+        }
+
+        function stopwatch() {
+            ms++;
+            if (ms == 100) {
+                ms = 0;
+                sec++;
+            }
+            if (sec == 60) {
+                sec = 0;
+                min++;
+            }
+            if (min == 60) {
+                min = 0;
+                hr++;
+            }
+            updateDisplay();
+        }
+
+        function startTimer() {
+            if (timer !== null) return;
+            timer = setInterval(stopwatch, 10);
+        }
+
+        function pauseTimer() {
+            clearInterval(timer);
+            timer = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            [ms, sec, min, hr] = [0, 0, 0, 0];
+            updateDisplay();
+            document.getElementById("laps").innerHTML = '';
+        }
+
+        function recordLap() {
+            if (timer === null) return;
+            const lapsContainer = document.getElementById("laps");
+            const lapTime = document.getElementById("display").innerText;
+            const lapItem = document.createElement("div");
+            lapItem.className = "lap-item";
+            lapItem.innerText = `Lap ${lapsContainer.children.length + 1}: ${lapTime}`;
+            lapsContainer.prepend(lapItem);
+        }
+    </script>
+
+</body>
+
+</html>

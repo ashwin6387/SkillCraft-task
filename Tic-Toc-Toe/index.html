@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="board" id="board"></div>
+    <div id="status"></div>
+    <button onclick="resetGame()">Restart</button>
+    <script>
+        const boardElement = document.getElementById("board");
+        const statusElement = document.getElementById("status");
+        let board = Array(9).fill(null);
+        let currentPlayer = "X";
+        let vsComputer = true;
+
+        function renderBoard() {
+            boardElement.innerHTML = "";
+            board.forEach((value, i) => {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                if (value) {
+                    cell.textContent = value;
+                    cell.classList.add("disabled");
+                } else {
+                    cell.addEventListener("click", () => handleMove(i));
+                }
+                boardElement.appendChild(cell);
+            });
+        }
+
+        function handleMove(index) {
+            if (board[index] || checkWinner()) return;
+            board[index] = currentPlayer;
+            if (checkWinner()) {
+                statusElement.textContent = `${currentPlayer} wins!`;
+                disableBoard();
+                return;
+            }
+            if (board.every(cell => cell)) {
+                statusElement.textContent = "It's a draw!";
+                return;
+            }
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            renderBoard();
+
+            if (vsComputer && currentPlayer === "O") {
+                setTimeout(() => {
+                    computerMove();
+                }, 500);
+            }
+        }
+
+        function computerMove() {
+            const available = board.map((val, i) => (val ? null : i)).filter(val => val !== null);
+            const move = available[Math.floor(Math.random() * available.length)];
+            handleMove(move);
+        }
+
+        function checkWinner() {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+            return lines.some(([a, b, c]) => board[a] && board[a] === board[b] && board[a] === board[c]);
+        }
+
+        function disableBoard() {
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.add("disabled"));
+        }
+
+        function resetGame() {
+            board = Array(9).fill(null);
+            currentPlayer = "X";
+            statusElement.textContent = "";
+            renderBoard();
+        }
+
+        renderBoard();
+    </script>
+</body>
+
+</html>
